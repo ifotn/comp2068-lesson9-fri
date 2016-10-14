@@ -50,5 +50,77 @@ router.post('/add', function(req, res, next) {
     });
 });
 
+/* GET /drinks/delete/_id - process delete */
+router.get('/delete/:_id', function(req, res, next) {
+    // get the id from the url
+    var _id = req.params._id;
+
+    // delete the document with this _id
+    Drink.remove( { _id: _id }, function(err) {
+       if (err) {
+           console.log(err);
+           res.render('error', {
+               message: 'Could not Delete Drink',
+               error: err
+           });
+       }
+        else {
+           res.redirect('/drinks');
+       }
+    });
+});
+
+/* GET /drinks/_id - display edit page & fill with values */
+router.get('/:_id', function(req, res, next) {
+    // get the id from the url
+    var _id = req.params._id;
+    // use Mongoose to get the selected drink document
+    Drink.findById( { _id: _id }, function(err, drink) {
+        if (err) {
+            console.log(err);
+            res.render('error', {
+                message: 'Could not Load Drink',
+                error: err
+            });
+        }
+        else {
+            res.render('edit-drink', {
+                title: 'Edit a Drink',
+                drink: drink
+            });
+        }
+    });
+});
+
+/* POST /drinks/_id - process form submission & update selected doc */
+router.post('/:_id', function(req, res, next) {
+    // get id from url
+    var _id = req.params._id;
+
+    // instantiate & populate a new drink object
+    var drink = new Drink({
+       _id: _id,
+        name: req.body.name,
+        drinkType: req.body.drinkType,
+        size: req.body.size,
+        units: req.body.units,
+        alcoholPercentage: req.body.alcoholPercentage
+    });
+
+    // update the drink
+    Drink.update({ _id: _id }, drink, function(err) {
+       if (err) {
+           console.log(err);
+           res.render('error', {
+               message: 'Could not Update Drink',
+               error: err
+           });
+       }
+        else {
+           res.redirect('/drinks');
+       }
+    });
+});
+
 // make public
 module.exports = router;
