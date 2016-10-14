@@ -25,5 +25,30 @@ router.get('/', function(req, res, next) {
     });
 });
 
+/* GET /drinks/add - show the blank form */
+router.get('/add', function(req, res, next) {
+   res.render('add-drink', { title: 'Add a New Drink'} );
+});
+
+/* POST /drinks/add - process the form submission */
+router.post('/add', function(req, res, next) {
+    // get the form inputs & use mongoose to insert to the db
+    Drink.create( {
+       name: req.body.name,
+        drinkType: req.body.drinkType,
+        size: req.body.size,
+        units: req.body.units,
+        alcoholPercentage: req.body.alcoholPercentage
+    }, function(err, Drink) {
+        if (err) {
+            console.log(err);
+            res.render('error', { message: 'Could not Add Drink'} );
+        }
+        else {
+            res.redirect('/drinks');
+        }
+    });
+});
+
 // make public
 module.exports = router;
