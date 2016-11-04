@@ -7,8 +7,18 @@ var router = express.Router();
 // link to the Drink model
 var Drink = require('../models/drink');
 
+// auth check
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        next();
+    }
+    else {
+        res.redirect('/login');
+    }
+}
+
 // GET main drinks page
-router.get('/', function(req, res, next) {
+router.get('/', isLoggedIn, function(req, res, next) {
     // use the Drink model to query the db for drink data
     Drink.find(function(err, drinks) {
        if (err) {
@@ -19,19 +29,23 @@ router.get('/', function(req, res, next) {
            // load the drinks page and pass the query result
            res.render('drinks', {
                title: 'All the Booze That\'s Fit to Drink',
-               drinks: drinks
+               drinks: drinks,
+               user: req.user
            });
        }
     });
 });
 
 /* GET /drinks/add - show the blank form */
-router.get('/add', function(req, res, next) {
-   res.render('add-drink', { title: 'Add a New Drink'} );
+router.get('/add', isLoggedIn, function(req, res, next) {
+   res.render('add-drink', {
+       title: 'Add a New Drink',
+       user: req.user
+   } );
 });
 
 /* POST /drinks/add - process the form submission */
-router.post('/add', function(req, res, next) {
+router.post('/add', isLoggedIn, function(req, res, next) {
     // get the form inputs & use mongoose to insert to the db
     Drink.create( {
        name: req.body.name,
@@ -51,7 +65,7 @@ router.post('/add', function(req, res, next) {
 });
 
 /* GET /drinks/delete/_id - process delete */
-router.get('/delete/:_id', function(req, res, next) {
+router.get('/delete/:_id', isLoggedIn, function(req, res, next) {
     // get the id from the url
     var _id = req.params._id;
 
@@ -71,7 +85,7 @@ router.get('/delete/:_id', function(req, res, next) {
 });
 
 /* GET /drinks/_id - display edit page & fill with values */
-router.get('/:_id', function(req, res, next) {
+router.get('/:_id', isLoggedIn, function(req, res, next) {
     // get the id from the url
     var _id = req.params._id;
     // use Mongoose to get the selected drink document
@@ -86,14 +100,15 @@ router.get('/:_id', function(req, res, next) {
         else {
             res.render('edit-drink', {
                 title: 'Edit a Drink',
-                drink: drink
+                drink: drink,
+                user: req.user
             });
         }
     });
 });
 
 /* POST /drinks/_id - process form submission & update selected doc */
-router.post('/:_id', function(req, res, next) {
+router.post('/:_id', isLoggedIn, function(req, res, next) {
     // get id from url
     var _id = req.params._id;
 

@@ -12,7 +12,20 @@
   <nav class="navbar navbar-default">
     <ul class="nav navbar-nav">
       <li><a href="/">Home</a></li>
-      <li><a href="/drinks">Drinks</a></li>
+
+      <% if (!user) { %>
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+      <% }
+        else {
+      %>
+        <li><a href="/drinks">Drinks</a></li>
+        <li><a href="/logout">Logout</a></li>
     </ul>
+    <ul class="nav navbar-nav navbar-right">
+          <li>Welcome <%= user.username %></li>
+        </ul>
+      <% } %>
+
   </nav>
 
